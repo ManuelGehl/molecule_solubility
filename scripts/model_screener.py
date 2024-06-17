@@ -4,6 +4,7 @@ Functionality to quickly screen different models.
 
 from sklearn.model_selection import cross_validate
 import pandas as pd
+import numpy as np
 
 class ModelScreener():
     """
@@ -50,17 +51,12 @@ class ModelScreener():
                 cv=self.cv, 
                 n_jobs=-1
                 )
-
-            # Store the mean + std of metrics in dictionary
-            intermediate_results = {}
-            for key in score.keys():
-                if "test" in key:
-                    score_mean = score[key].mean()
-                    score_stdev = score[key].std()
-                    intermediate_results[key] = (score_mean, score_stdev)
             
+            # Extract mean and standard deviation from score dictionary
+            score_mean = np.mean(score["test_score"])
+            score_stdev = np.std(score["test_score"])
             # Save all results of one particular model in results dict
-            results[model_name] = intermediate_results
+            results[model_name] = (score_mean, score_stdev)
             
         self.results = results
     
@@ -68,5 +64,5 @@ class ModelScreener():
         """
         Transform results dictionary in simple dataframe.
         """
-        
-        self.results_df = pd.DataFrame(self.results)
+        results_df = pd.DataFrame(self.results.values(), index=self.results.keys(), columns=['score_mean', 'score_stdev'])
+        self.results_df = results_df
