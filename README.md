@@ -46,6 +46,30 @@ Finally, the following features were included in the training dataset used for m
 - Labute ASA
 - BertzCT
 
-# Model screening and fine-tuning
+## Model screening and fine-tuning
 
+To test different models, the default hyperparameters of the following models were used:
+- Dummy Regressor
+- Linear Regression
+- Support Vector Regressor (SVR)
+- Random Forest
+- Gradient Boosting Regressor (GB)
+- k-Nearest Neighbors Regressor (KNN)
+- Multi-Layer Perceptron (MLP)
+- AdaBoost Regressor
 
+The models were evaluated using 5-fold cross-validation and the mean absolute error (MAE) as a metric. All models performed better than the dummy regressor, which gave the mean solubility for each compound. AdaBoost and Linear Regression performed slightly worse than the other models. Therefore, the SVR, GB, KNN, and MLP model types were used for fine tuning.
+
+Fine-tuning was done using randomized search with a 3-fold cross-validation strategy.
+
+## Ensemble models
+
+The four fine-tuned models have been combined into 2 different ensembles:
+1. Voting classifier using the outputs of the base models and soft voting
+2. Stacking classifier using the outputs of the base models and the input features as inputs to a meta-learner (linear regression).
+
+Both models outperformed their respective base models, but the stacking model was slightly better with a mean MAE of 0.798 +/- 0.008 compared to 0.801 +/- 0.008 for the voting model.
+
+## Evaluate model performances on test set
+
+On the test set, the models performed well, with the GB Regressor being the worst with an MAE of 0.858 and the MLP being the best single model with an MAE of 0.82. The ensembles are still the best models and the tiny gap between the two models remains with the voting regressor having an MAE of 0.803 and the stacking regressor having an MAE of 0.801.
