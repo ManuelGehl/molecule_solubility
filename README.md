@@ -25,7 +25,27 @@ Based on the data analysis described above, several preprocessing steps were per
 - Categorize solubility based on paper categories
 - Scale continuous features using standard scaling
 
-## Model building
+## Feature importance
 
+Based on the data set and the engineered features, 2 strategies emerged:
+1. Use continuous features to describe rings in compounds
+2. Use categorical features to describe rings in compounds
+
+Since the dataset contains many features, the first step was to identify the most important features using a Random Forest Regressor. 
+
+Regardless of whether the ring features were categorical or continuous, they added little to the predictive power of the models. According to the correlation analysis, the most important feature by far is the partition coefficient. Interestingly, the BertzCT is the second most important feature, which is different from the correlation matrix. The general trend is that chemical descriptors that describe accessible surface areas, branching or other more topological features are much more important than the simple atom type descriptors.
+
+Finally, the following features were included in the training dataset used for model building:
+- MolWt
+- MolLogP
+- MolMR
+- HeavyAtomCount
+- NumHDonors
+- NumRotatableBonds
+- NumValenceElectrons
+- Labute ASA
+- BertzCT
+
+# Model screening and fine-tuning
 
 
