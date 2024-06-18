@@ -17,6 +17,15 @@ Most high molecular weight compounds affect many descriptors but not necessarily
 
 ## Data preprocessing and feature engineering
 
+Based on the data analysis described above, several preprocessing steps were performed:
+
+- Remove duplicate entries with the same name value
+- Remove molecules heavier than 1000 Da
+- Categorized descriptors such as RingCount, NumAromaticRings into binary features describing whether compounds have these rings at all or not
+- Categorize solubility based on paper categories
+- Scale continuous features using standard scaling
+
+## Model building
 
 
 
