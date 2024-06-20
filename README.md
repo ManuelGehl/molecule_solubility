@@ -1,6 +1,8 @@
 # molecule_solubility
 
-This project is based on the AqSolDB dataset, which is a curated dataset of chemical compounds with their aqueous solubility and several 2-dimensional descriptors. The data was received from the Harvard Dataverse on December 11, 2023 (https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/OVHAW8).
+This project is based on the AqSolDB dataset, which is a curated dataset of 9982 chemical compounds with their aqueous solubility and several 2-dimensional descriptors. The data was received from the Harvard Dataverse on December 11, 2023 (https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/OVHAW8).
+
+Data preprocessing involved removing duplicate names and high molecular weight outliers, categorizing descriptors, and scaling continuous features. Feature importance analysis identified key descriptors, with MolLogP being the most influential. Multiple regression models were screened and fine-tuned, with Support Vector Regressor, Gradient Boosting, k-Nearest Neighbors, and Multi-Layer Perceptron showing the best performance. Ensemble models combining these regressors outperformed individual models, with the stacking regressor achieving the lowest mean absolute error (MAE). Error analysis indicated that the model is most accurate for compounds with solubility around -2, but predictions deviate for higher and lower solubilities, suggesting further improvements could be made with a more uniform dataset or specialized models for different solubility ranges.
 
 ## Dataset Overview
 
