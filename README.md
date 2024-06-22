@@ -35,6 +35,10 @@ Most high molecular weight compounds affect many descriptors but not necessarily
 **Figure 3: Molecular weight plotted against solubility and outliers marked.**
 <br></br>
 
+RdKit was used to count the elements in each compound. Correlation analysis showed that the number of carbon atoms had the highest correlation with solubility (correlation coefficient of 0.43), similar to the correlation between MolMR and solubility. Chlorine had the second-highest correlation at 0.36, followed by sodium at 0.14. Elements Br, K, O, F, and S had correlations between 0.08 and 0.06. All other elements had lower correlations with solubility.
+
+Using the carbon count, the dataset was divided into organic (containing carbon) and inorganic (no carbon) compounds. Only 3.3% of the compounds were inorganic. Due to the significant differences in the chemistry and solubility of organic and inorganic compounds, the inorganic compounds were excluded from the dataset.
+
 ## Data preprocessing and feature engineering
 
 Based on the data analysis described above, several preprocessing steps were performed:
@@ -43,6 +47,8 @@ Based on the data analysis described above, several preprocessing steps were per
 - Remove molecules heavier than 1000 Da
 - Categorized descriptors such as RingCount, NumAromaticRings into binary features describing whether compounds have these rings at all or not
 - Categorize solubility based on paper categories
+- Count elements C, O, Na, Cl, K, Br and F and add count as feature
+- Filter out anorganic compounds
 - Scale continuous features using standard scaling
 
 ## Feature importance
@@ -59,7 +65,7 @@ Since the dataset contains many features, the first step was to identify the mos
 **Figure 4: Feature importance based on a Random Forest Regressor using continuous features.**
 <br></br>
 
-Regardless of whether the ring features were categorical or continuous, they added little to the predictive power of the models. According to the correlation analysis, the most important feature by far is the partition coefficient. Interestingly, the BertzCT is the second most important feature, which is different from the correlation matrix. The general trend is that chemical descriptors that describe accessible surface areas, branching or other more topological features are much more important than the simple atom type descriptors.
+Regardless of whether the ring features were categorical or continuous, they added little to the predictive power of the models. According to the correlation analysis, the most important feature by far is the partition coefficient. Interestingly, the BertzCT is the second most important feature, which is different from the correlation matrix. The general trend is that chemical descriptors that describe accessible surface areas, branching or other more topological features are much more important than the simple atom type descriptors. In particular, the presence of the elements oxygen, carbon and chlorine was more important than sodium, fluorine, bromine and potassium. The latter were also in the group of least important characteristics. This finding is very different to the findinds of the correlation analysis.
 
 Finally, the following features were included in the training dataset used for model building:
 - MolWt
@@ -69,8 +75,16 @@ Finally, the following features were included in the training dataset used for m
 - NumHDonors
 - NumRotatableBonds
 - NumValenceElectrons
+- NumAromaticRings
 - Labute ASA
 - BertzCT
+- C
+- Cl
+- Na
+- Br
+- F
+- K
+- O
 
 ## Model screening and fine-tuning
 
@@ -84,7 +98,7 @@ To test different models, the default hyperparameters of the following models we
 - Multi-Layer Perceptron (MLP)
 - AdaBoost Regressor
 
-The models were evaluated using 5-fold cross-validation and the mean absolute error (MAE) as a metric(**Fig. 5**). All models performed better than the dummy regressor, which gave the mean solubility for each compound. AdaBoost and Linear Regression performed slightly worse than the other models. Therefore, the SVR, GB, KNN, and MLP model types were used for fine tuning.
+The models were evaluated using 5-fold cross-validation and the root mean squared error (RMSE) as a metric (**Fig. 5**). All models performed better than the dummy regressor, which gave the mean solubility for each compound. AdaBoost and Linear Regression performed slightly worse than the other models. Therefore, the SVR, GB, KNN, and MLP model types were used for fine tuning.
 
 <br></br>
 <img src=figures/model_screening.png>
@@ -100,11 +114,11 @@ The four fine-tuned models have been combined into 2 different ensembles:
 1. Voting classifier using the outputs of the base models and soft voting
 2. Stacking classifier using the outputs of the base models and the input features as inputs to a meta-learner (linear regression).
 
-Both models outperformed their respective base models, but the stacking model was slightly better with a mean MAE of 0.798 +/- 0.008 compared to 0.801 +/- 0.008 for the voting model.
+Both models outperformed their respective base models with a mean RMSE of 1.04 +/- 0.03.
 
 ## Evaluate model performances on test set
 
-On the test set, the models performed well, with the GB Regressor being the worst with an MAE of 0.858 and the MLP being the best single model with an MAE of 0.82 (**Fig. 6**). The ensembles are still the best models and the tiny gap between the two models remains with the voting regressor having an MAE of 0.803 and the stacking regressor having an MAE of 0.801.
+On the test set, the models performed well, with the KNN Regressor being the worst with an RMSE of 1.14 and the MLP being the best single model with an RMSE of 1.04 (**Fig. 6**). The ensembles are still the best models, both resulting in an RMSE of 1.01.
 
 <br></br>
 <img src=figures/performance_testset.png>
@@ -114,7 +128,7 @@ On the test set, the models performed well, with the GB Regressor being the wors
 
 ## Error analysis
 
-For the error analysis, residuals were calculated as the difference between the predicted and true solubility of the stacking model (**Fig. 7**). The parity plot shows that most prediction-label pairs are close to the identity line, indicating accurate predictions. The model performs best for compounds with solubility around -2, reflecting the dataset's composition. However, predictions deviate more for compounds with higher or very low solubility. This suggests the model could improve with a more uniform dataset or by training separate models for different solubility ranges and combining them in an ensemble.
+For the error analysis, residuals were calculated as the difference between the predicted and true solubility of the voting model (**Fig. 7**). The parity plot shows that most prediction-label pairs are close to the identity line, indicating accurate predictions. The model performs best for compounds with solubility around -2, reflecting the dataset's composition. However, predictions deviate more for compounds with higher or very low solubility. This suggests the model could improve with a more uniform dataset or by training separate models for different solubility ranges and combining them in an ensemble.
 
 <br></br>
 <img src=figures/parity_plot.png>
