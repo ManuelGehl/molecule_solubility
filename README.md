@@ -136,6 +136,18 @@ For the error analysis, residuals were calculated as the difference between the 
 **Figure 7: Parity plot for the stacking model on the test set.**
 <br></br>
 
+## Morgan Fingerprint Model
+
+The chemical descriptors used so far are features that summarize different properties of molecules in one value. Morgan fingerprints, on the other hand, are designed to capture molecular features at a higher granularity by generating an embedding based on different substructures of a molecule.
+
+RDKit was used to generate Extended-Connectivity Fingerprints with a diameter of 4 (ECFP4) from the SMILES of the dataset. Fast model screening using default hyperparameters resulted in slightly worse RMSE values compared to chemical descriptor model screening (**Fig. 8**). The best model was a support vector regressor (SVR) with a mean RMSE of about 1.3. After fine tuning, the SVR achieved an average RMSE of 1.2.
+
+<br></br>
+<img src=figures/fingerprint_screen.png>
+
+**Figure 8: Model screening using ECFP4 as feature.**
+<br></br>
+
 ## Literature
 
 Sorkun, M.C., Khetan, A. and Er, S. (2019) ‘AqSolDB, a curated reference set of aqueous solubility and 2D descriptors for a diverse set of compounds’, Scientific Data, 6(1), p. 143. Available at: https://doi.org/10.1038/s41597-019-0151-1.
