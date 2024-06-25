@@ -136,17 +136,49 @@ For the error analysis, residuals were calculated as the difference between the 
 **Figure 7: Parity plot for the stacking model on the test set.**
 <br></br>
 
-## Morgan Fingerprint Model
+## Fingerprint Models
 
-The chemical descriptors used so far are features that summarize different properties of molecules in one value. Morgan fingerprints, on the other hand, are designed to capture molecular features at a higher granularity by generating an embedding based on different substructures of a molecule.
+The chemical descriptors used so far are features that summarize different properties of molecules in one value. Morgan fingerprints, on the other hand, are designed to capture molecular features at a higher granularity by generating an embedding based on different substructures of a molecule. MACCS fingerprints are predefined substructures of molecules.
 
-RDKit was used to generate Extended-Connectivity Fingerprints with a diameter of 4 (ECFP4) from the SMILES of the dataset. Fast model screening using default hyperparameters resulted in slightly worse RMSE values compared to chemical descriptor model screening (**Fig. 8**). The best model was a support vector regressor (SVR) with a mean RMSE of about 1.3. After fine tuning, the SVR achieved an average RMSE of 1.2.
+RDKit was used to generate Extended-Connectivity Fingerprints with a diameter of 4 (ECFP4) as well as MACCS fingerprints from the SMILES of the dataset. Fast model screening using default hyperparameters resulted in a slightly better RMSE for most values using MACCS fingerprints than ECFP4. Therefore, a gradient boosting (GB) regressor, a support vector regressor (SVR), and a random forest regressor were fine-tuned using MACCS as features. The mean RSME over 3 cross-folds was 1.2 for both the GB regressor and the SVR, and 1.3 for the random forest regressor.
+
+## Models that combine descriptors and MACCS fingerprints
+
+Both types of features, the 2D descriptors and the MACCS fingerprints, were combined. Since the best models so far for the separate feature sets were SVR, GB regressor and MLP, the focus was on them and they were used for fine-tuning. The combination of features was beneficial for model prediction, as all models had better RMSE values than the best models trained on the separate feature sets (**Tab. 1**).
+
+**Table 1: RMSE values for 3-fold cross-validation on a dataset containing both 2D descriptors and MACCS fingerprints.**
+|  Regressor | RMSE |
+|----:|---------:|
+|  GB | 0.98 |
+| SVR | 0.95 |
+| MLP | 0.98 |
+
+Combining all three models into one voting regressor improved performance even more, reaching an RMSE of 0.93 +/- 0.03.
+
+A final test set evaluation was performed using the best models trained on either the MACCS fingerprints alone or the combination of 2D descriptors and MACCS fingerprints (Fig. 8). The models trained on the combined dataset outperformed the 2D descriptor models, both achieving a test RMSE of 0.92.
 
 <br></br>
-<img src=figures/fingerprint_screen.png>
+<img src=figures/test_mix_models.png>
 
-**Figure 8: Model screening using ECFP4 as feature.**
+**Figure 8: RMSE values for models trained on different feature sets and tested on the test set.**
 <br></br>
+
+## Error analysis
+
+The parity plot shows that most predictions are close to the identity line and that incorrect predictions mostly occur for solubility values far away from the dataset mode (**Fig. 9**). The 10 most overestimated and 10 most underestimated cases in the test set were plotted (**Fig. 10**). Note that there were some instances that actually consisted of multiple compounds and were named like "methane; sulfuric acid" (2nd row, 2nd column). Filtering out these multiple compounds from the data set could improve the ability of the model to generalize solubility for organic compounds.
+
+<br></br>
+<img src=figures/parity_plot_2.png>
+
+**Figure 9: Parity plot for the voting model using both 2D descriptors and MACCS on the test set.**
+<br></br>
+
+<br></br>
+<img src=figures/error_structures.png>
+
+**Figure 10: Top 10 under- and overestimated compounds with corresponding solubility values and predicted solubility values.**
+<br></br>
+
 
 ## Literature
 
