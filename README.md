@@ -1,8 +1,12 @@
 # molecule_solubility
 
-This project is based on the AqSolDB dataset, which is a curated dataset of 9982 chemical compounds with their aqueous solubility and several 2-dimensional descriptors. The data was received from the Harvard Dataverse on December 11, 2023 (https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/OVHAW8).
+This project utilized the AqSolDB dataset, comprising 9982 chemical compounds, to predict aqueous solubility. The data was received from the Harvard Dataverse on December 11, 2023 (https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/OVHAW8). Initial data preprocessing involved removing duplicates and high molecular weight outliers, categorizing descriptors, and scaling features. Feature importance analysis highlighted MolLogP as the most influential descriptor.
 
-Data preprocessing involved removing duplicate names and high molecular weight outliers, categorizing descriptors, and scaling continuous features. Feature importance analysis identified key descriptors, with MolLogP being the most influential. Multiple regression models were screened and fine-tuned, with Support Vector Regressor, Gradient Boosting, k-Nearest Neighbors, and Multi-Layer Perceptron showing the best performance. Ensemble models combining these regressors outperformed individual models, with the stacking regressor achieving the lowest mean absolute error (MAE). Error analysis indicated that the model is most accurate for compounds with solubility around -2, but predictions deviate for higher and lower solubilities, suggesting further improvements could be made with a more uniform dataset or specialized models for different solubility ranges.
+Various regression models, including Support Vector Regressor, Gradient Boosting, k-Nearest Neighbors, and Multi-Layer Perceptron, were screened and fine-tuned. Ensemble models outperformed individual models, with the stacking regressor achieving the lowest mean absolute error (MAE). Error analysis revealed that the model was most accurate for solubility around -2, with deviations for higher and lower solubility values.
+
+The dataset was divided into organic and inorganic compounds, with only organic compounds retained for further analysis. Preprocessing steps included removing duplicates, filtering high molecular weight molecules, categorizing descriptors, counting key elements, and scaling continuous features.
+
+The best-performing models, when tested with MACCS fingerprints and combined features, achieved an RMSE of 0.92 on the test set. Graph neural networks (GNNs) were also tested but did not outperform the models using 2D descriptors and MACCS fingerprints. Incorporating graph-level features into the GCN architecture significantly improved its performance, achieving an RMSE of 0.921.
 
 ## Dataset Overview
 
