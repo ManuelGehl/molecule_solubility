@@ -108,7 +108,7 @@ The models were evaluated using 5-fold cross-validation and the root mean square
 
 Fine-tuning was done using randomized search with a 3-fold cross-validation strategy.
 
-## Ensemble models
+### Ensemble models
 
 The four fine-tuned models have been combined into 2 different ensembles:
 1. Voting classifier using the outputs of the base models and soft voting
@@ -116,7 +116,7 @@ The four fine-tuned models have been combined into 2 different ensembles:
 
 Both models outperformed their respective base models with a mean RMSE of 1.04 +/- 0.03.
 
-## Evaluate model performances on test set
+### Evaluate model performances on test set
 
 On the test set, the models performed well, with the KNN Regressor being the worst with an RMSE of 1.14 and the MLP being the best single model with an RMSE of 1.04 (**Fig. 6**). The ensembles are still the best models, both resulting in an RMSE of 1.01.
 
@@ -126,7 +126,7 @@ On the test set, the models performed well, with the KNN Regressor being the wor
 **Figure 6: Performance of different models after fine-tuning on the test set.**
 <br></br>
 
-## Error analysis
+### Error analysis
 
 For the error analysis, residuals were calculated as the difference between the predicted and true solubility of the voting model (**Fig. 7**). The parity plot shows that most prediction-label pairs are close to the identity line, indicating accurate predictions. The model performs best for compounds with solubility around -2, reflecting the dataset's composition. However, predictions deviate more for compounds with higher or very low solubility. This suggests the model could improve with a more uniform dataset or by training separate models for different solubility ranges and combining them in an ensemble.
 
@@ -142,7 +142,7 @@ The chemical descriptors used so far are features that summarize different prope
 
 RDKit was used to generate Extended-Connectivity Fingerprints with a diameter of 4 (ECFP4) as well as MACCS fingerprints from the SMILES of the dataset. Fast model screening using default hyperparameters resulted in a slightly better RMSE for most values using MACCS fingerprints than ECFP4. Therefore, a gradient boosting (GB) regressor, a support vector regressor (SVR), and a random forest regressor were fine-tuned using MACCS as features. The mean RSME over 3 cross-folds was 1.2 for both the GB regressor and the SVR, and 1.3 for the random forest regressor.
 
-## Models that combine descriptors and MACCS fingerprints
+### Models that combine descriptors and MACCS fingerprints
 
 Both types of features, the 2D descriptors and the MACCS fingerprints, were combined. Since the best models so far for the separate feature sets were SVR, GB regressor and MLP, the focus was on them and they were used for fine-tuning. The combination of features was beneficial for model prediction, as all models had better RMSE values than the best models trained on the separate feature sets (**Tab. 1**).
 
@@ -163,7 +163,7 @@ A final test set evaluation was performed using the best models trained on eithe
 **Figure 8: RMSE values for models trained on different feature sets and tested on the test set.**
 <br></br>
 
-## Error analysis
+### Error analysis
 
 The parity plot shows that most predictions are close to the identity line and that incorrect predictions mostly occur for solubility values far away from the dataset mode (**Fig. 9**). The 10 most overestimated and 10 most underestimated cases in the test set were plotted (**Fig. 10**). Note that there were some instances that actually consisted of multiple compounds and were named like "methane; sulfuric acid" (2nd row, 2nd column). Filtering out these multiple compounds from the data set could improve the ability of the model to generalize solubility for organic compounds.
 
@@ -179,6 +179,27 @@ The parity plot shows that most predictions are close to the identity line and t
 **Figure 10: Top 10 under- and overestimated compounds with corresponding solubility values and predicted solubility values.**
 <br></br>
 
+## Graph Neural Networks
+
+Graph neural networks were used to predict the solubility of compounds. Previous models struggled with instances containing multiple chemical compounds, which also resulted in unconnected graphs. These problematic instances were removed from the data set.
+
+The graphs were constructed from SMILES strings, which were transformed into RDKit molecular objects to obtain adjacency matrices. Node features included one-hot encodings for element types and hybridization states, as well as vectors describing atomic properties such as degree, formal charge, implicit valence, mass, and aromaticity. Edge features were encoded to indicate bond types (single, double, triple, aromatic) and properties (part of a conjugated system or ring). This setup provided the basis for testing different graph neural network architectures.
+
+To explore different architectures, graphs with node and edge features only were used to train a graph convolutional network (GCN), a graph attention network (GAN) with convolutional layers incorporating attention mechanisms, and a transformer.
+
+Since the previous section demonstrated the power of 2D descriptors as features, the same set of 2D descriptors (MolWt, MolLogP, MolMR, HeavyAtomCount, etc.) were used as graph-level features.The same GCN architecture was used as before, but after the graph convolutional layer, the graph-level features were incorporated into a dense network.
+
+Table 2 indicates that incorporating graph-level features into the graph convolutional network significantly improves its performance, achieving the lowest RMSE value of 0.921 compared to other models on the test set.
+
+**Table 2: RMSE values for graph neural networks on test set.**
+| Model                                      | RMSE  |
+|--------------------------------------------|-------|
+| Graph Convolution                          | 1.110 |
+| Graph Attention                            | 1.066 |
+| Transformer                                | 1.096 |
+| Graph Convolution (+ graph-level features) | 0.921 |
+
+Taken together, the graph neural networks did not perform better than the models using MACCS fingerprints and 2D descriptors.
 
 ## Literature
 
